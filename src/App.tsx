@@ -8,6 +8,7 @@ import { Player, Pattern, WonPattern } from './types';
 import { getRandomNumber } from './utils/gameUtils';
 import speechService from './utils/speechUtils';
 import { Megaphone } from 'lucide-react';
+import NumberChecker from './components/NumberChecker';
 
 function App() {
   // Game state
@@ -182,7 +183,7 @@ function App() {
       {/* Main content */}
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column (number caller + grid) */}
+          {/* Left column (number caller + grid + number checker) */}
           <div className="lg:col-span-2 space-y-6">
             <NumberCaller 
               calledNumbers={calledNumbers}
@@ -195,8 +196,11 @@ function App() {
               calledNumbers={calledNumbers} 
               lastCalledNumber={lastCalledNumber} 
             />
+            <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+              <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">Number Checker</h2>
+              <NumberChecker calledNumbers={calledNumbers} />
+            </div>
           </div>
-          
           {/* Right column (players) */}
           <div className="lg:col-span-1">
             <PlayerList 
