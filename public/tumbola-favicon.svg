@@ -1,0 +1,9 @@
+<svg width="512" height="384" viewBox="0 0 512 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="512" height="384" rx="64" fill="#F4C04E"/>
+<rect x="32" y="32" width="448" height="320" rx="48" fill="#F4C04E"/>
+<path d="M64 0C28.65 0 0 28.65 0 64V320C0 355.35 28.65 384 64 384H448C483.35 384 512 355.35 512 320V64C512 28.65 483.35 0 448 0H64ZM32 64C32 37.49 53.49 16 80 16H432C458.51 16 480 37.49 480 64V320C480 346.51 458.51 368 432 368H80C53.49 368 32 346.51 32 320V64Z" fill="#F4C04E"/>
+<circle cx="256" cy="144" r="80" fill="#F4C04E" stroke="#A12A1A" stroke-width="12"/>
+<circle cx="256" cy="144" r="56" fill="#F4C04E" stroke="#A12A1A" stroke-width="8"/>
+<text x="256" y="160" text-anchor="middle" font-size="56" font-family="Arial, Helvetica, sans-serif" fill="#231F20" font-weight="bold">23</text>
+<text x="256" y="270" text-anchor="middle" font-size="72" font-family="Arial, Helvetica, sans-serif" fill="#A12A1A" font-weight="bold">TUMBOLA</text>
+</svg>

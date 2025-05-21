@@ -230,7 +230,7 @@ function App() {
       )}
       
       {/* Confetti animation keyframes */}
-      <style jsx="true">{`
+      <style>{`
         @keyframes confetti {
           0% {
             transform: translateY(0) rotate(0deg);
