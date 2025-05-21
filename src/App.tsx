@@ -4,7 +4,6 @@ import NumberCaller from './components/NumberCaller';
 import PlayerList from './components/PlayerList';
 import WinnerModal from './components/WinnerModal';
 import NumberHistory from './components/NumberHistory';
-import ThemeToggle from './components/ThemeToggle';
 import { Player, Pattern, WonPattern } from './types';
 import { getRandomNumber } from './utils/gameUtils';
 import speechService from './utils/speechUtils';
@@ -12,10 +11,22 @@ import { Megaphone } from 'lucide-react';
 
 function App() {
   // Game state
-  const [calledNumbers, setCalledNumbers] = useState<number[]>([]);
-  const [lastCalledNumber, setLastCalledNumber] = useState<number | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [wonPatterns, setWonPatterns] = useState<WonPattern[]>([]);
+  const [calledNumbers, setCalledNumbers] = useState<number[]>(() => {
+    const saved = localStorage.getItem('tumbola-calledNumbers');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [lastCalledNumber, setLastCalledNumber] = useState<number | null>(() => {
+    const saved = localStorage.getItem('tumbola-lastCalledNumber');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = localStorage.getItem('tumbola-players');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [wonPatterns, setWonPatterns] = useState<WonPattern[]>(() => {
+    const saved = localStorage.getItem('tumbola-wonPatterns');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   // Winner modal state
   const [winner, setWinner] = useState<Player | null>(null);
@@ -125,6 +136,27 @@ function App() {
     setShowHistory(!showHistory);
   };
 
+  // Add a reset function
+  const resetGame = () => {
+    localStorage.removeItem('tumbola-calledNumbers');
+    localStorage.removeItem('tumbola-lastCalledNumber');
+    localStorage.removeItem('tumbola-players');
+    localStorage.removeItem('tumbola-wonPatterns');
+    setCalledNumbers([]);
+    setLastCalledNumber(null);
+    setPlayers([]);
+    setWonPatterns([]);
+    setWinner(null);
+    setWinningPattern(null);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('tumbola-calledNumbers', JSON.stringify(calledNumbers));
+    localStorage.setItem('tumbola-lastCalledNumber', JSON.stringify(lastCalledNumber));
+    localStorage.setItem('tumbola-players', JSON.stringify(players));
+    localStorage.setItem('tumbola-wonPatterns', JSON.stringify(wonPatterns));
+  }, [calledNumbers, lastCalledNumber, players, wonPatterns]);
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
       {/* Header */}
@@ -134,7 +166,16 @@ function App() {
             <Megaphone size={24} className="text-purple-600" />
             <h1 className="text-2xl font-bold text-purple-600 dark:text-purple-400">Tumbola</h1>
           </div>
-          <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+          <div className="flex items-center gap-4">
+            <button
+              onClick={resetGame}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-150"
+              title="Reset Game"
+            >
+              Reset Game
+            </button>
+            {/* Removed ThemeToggle */}
+          </div>
         </div>
       </header>
       
