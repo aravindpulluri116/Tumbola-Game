@@ -10,6 +10,7 @@ interface PlayerListProps {
   onRemovePlayer: (id: string) => void;
   onUpdatePlayer: (updatedPlayer: Player) => void;
   onDeclareWinner: (player: Player, pattern: Pattern) => void;
+  onUpdatePatterns?: (patterns: WonPattern[]) => void;
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({
@@ -23,6 +24,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
   const [newPlayerName, setNewPlayerName] = useState('');
   const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [editWonPatterns, setEditWonPatterns] = useState<string[]>([]);
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim()) {
@@ -39,17 +41,31 @@ const PlayerList: React.FC<PlayerListProps> = ({
   const startEditing = (player: Player) => {
     setEditingPlayerId(player.id);
     setEditName(player.name);
+    // Set initial patterns completed for this player
+    const playerPatterns = wonPatterns.filter(wp => wp.playerId === player.id).map(wp => wp.type);
+    setEditWonPatterns(playerPatterns);
   };
 
   const cancelEditing = () => {
     setEditingPlayerId(null);
+    setEditWonPatterns([]);
   };
 
   const savePlayerName = (player: Player) => {
     if (editName.trim()) {
       onUpdatePlayer({ ...player, name: editName.trim() });
+      // Update wonPatterns for this player
+      const newWonPatterns = wonPatterns.filter(wp => wp.playerId !== player.id);
+      editWonPatterns.forEach(type => {
+        newWonPatterns.push({ type, playerId: player.id });
+      });
+      // Notify parent component of pattern changes
+      if (typeof onUpdatePatterns === 'function') {
+        onUpdatePatterns(newWonPatterns);
+      }
     }
     setEditingPlayerId(null);
+    setEditWonPatterns([]);
   };
 
   const addScore = (player: Player, points: number) => {
@@ -60,6 +76,11 @@ const PlayerList: React.FC<PlayerListProps> = ({
   };
 
   const isPatternWon = (patternType: string) => {
+    if (editingPlayerId) {
+      // During editing, a pattern is won if it's assigned to another player
+      return wonPatterns.some(wp => wp.type === patternType && wp.playerId !== editingPlayerId);
+    }
+    // Outside editing mode, a pattern is won if any player has it
     return wonPatterns.some(wp => wp.type === patternType);
   };
 
@@ -150,22 +171,42 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
               <div className="flex flex-wrap gap-2 pt-1">
                 {patterns.map((pattern) => {
+                  // Use the updated isPatternWon logic
                   const patternWon = isPatternWon(pattern.type);
+                  const playerHasPattern = wonPatterns.some(wp => wp.type === pattern.type && wp.playerId === player.id);
                   return (
-                    <button
-                      key={pattern.type}
-                      className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${
-                        patternWon
-                          ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                          : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
-                      }`}
-                      onClick={() => !patternWon && onDeclareWinner(player, pattern)}
-                      title={patternWon ? 'Pattern already won' : `Declare ${player.name} winner of ${pattern.label} (${pattern.points} pts)`}
-                      disabled={patternWon}
-                    >
-                      <Trophy size={12} className={patternWon ? 'text-gray-500' : 'text-yellow-500'} />
-                      {pattern.label}
-                    </button>
+                    editingPlayerId === player.id ? (
+                      <label key={pattern.type} className="flex items-center gap-1 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={editWonPatterns.includes(pattern.type)}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              setEditWonPatterns([...editWonPatterns, pattern.type]);
+                            } else {
+                              setEditWonPatterns(editWonPatterns.filter(t => t !== pattern.type));
+                            }
+                          }}
+                          disabled={wonPatterns.some(wp => wp.type === pattern.type && wp.playerId !== player.id)}
+                        />
+                        {pattern.label}
+                      </label>
+                    ) : (
+                      <button
+                        key={pattern.type}
+                        className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${
+                          patternWon
+                            ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
+                        }`}
+                        onClick={() => !patternWon && onDeclareWinner(player, pattern)}
+                        title={patternWon ? 'Pattern already won' : `Declare ${player.name} winner of ${pattern.label} (${pattern.points} pts)`}
+                        disabled={patternWon}
+                      >
+                        <Trophy size={12} className={patternWon ? 'text-gray-500' : 'text-yellow-500'} />
+                        {pattern.label}
+                      </button>
+                    )
                   );
                 })}
                 
